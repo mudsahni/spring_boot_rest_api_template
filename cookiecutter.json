@@ -1,0 +1,7 @@
+{
+  "artifact_id": "demo",
+  "artifact_id_slug": "{{ cookiecutter.artifact_id.lower().replace(' ', '_') }}",
+  "group_id": "com.example",
+  "author_name": "ms",
+  "project_description": "This is a spring boot rest api template."
+}
