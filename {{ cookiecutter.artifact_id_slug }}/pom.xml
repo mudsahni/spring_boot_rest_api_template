@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>{{ cookiecutter.group_id }}</groupId>
-	<artifactId>{{ cookiecutter.artifact_id_slug }}</artifactId>
+	<artifactId>spring_boot_rest_api_template</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>{{ cookiecutter.artifact_id_slug }}</name>
 	<description>{{ cookiecutter.project_description }}</description>
@@ -80,8 +80,8 @@
 	</dependencies>
 
 	<build>
-		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-		<testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+		<sourceDirectory>src/main/kotlin</sourceDirectory>
+		<testSourceDirectory>src/test/kotlin</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
