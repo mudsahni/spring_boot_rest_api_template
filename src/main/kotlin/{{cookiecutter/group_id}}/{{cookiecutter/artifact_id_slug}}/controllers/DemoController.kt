@@ -1,4 +1,4 @@
-package com.example.demo.controllers
+package {{ cookiecutter.group_id }}.{{ cookiecutter.artifact_id_slug }}.controllers
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
