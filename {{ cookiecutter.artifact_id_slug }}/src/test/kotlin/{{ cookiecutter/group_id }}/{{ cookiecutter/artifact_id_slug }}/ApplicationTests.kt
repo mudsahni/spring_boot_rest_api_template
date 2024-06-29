@@ -1,4 +1,4 @@
-package {{cookiecutter.group_id}}.{{cookiecutter.artifact_id_slug}}
+package {{ cookiecutter.group_id }}.{{ cookiecutter.artifact_id_slug }}
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
