@@ -1,3 +1,1 @@
-# {{ cookiecutter.artifact_id_slug }} 
-
-{{ cookiecutter.project_description }}
+# CookieCutter Template for a Spring Boot Web App in Kotlin

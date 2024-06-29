@@ -1,3 +1,0 @@
-spring:
-  application:
-    name: {{ cookiecutter.artifact_id_slug }}
