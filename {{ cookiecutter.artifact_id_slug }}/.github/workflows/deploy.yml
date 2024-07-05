@@ -18,7 +18,7 @@ jobs:
       PROJECT_ID: paved-road-intuit
       REGION: us-central1
       IMAGE_NAME: testone
-      CLUSTER_NAME: {{ cookicutter.artifact_id_slug }}-cluster
+      CLUSTER_NAME: {{ cookiecutter.artifact_id_slug }}-cluster
       
 {% raw %}
 
