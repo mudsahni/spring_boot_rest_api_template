@@ -27,20 +27,60 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: log1
+      run: |
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"info\", \"logger\": \"GithubAction\", \"message\":\"Repository has been checked out.\"}" \
+          https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
+
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
-        
+
+    - name: log2
+      run: |
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"info\", \"logger\": \"GithubAction\", \"message\":\"JDK has been set up.\"}" \
+          https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
+
     - name: Build with Maven
       run: mvn clean package
+
+    - name: log3
+      run: |
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"info\", \"logger\": \"GithubAction\", \"message\":\"Maven build complete.\"}" \
+          https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
 
     - name: Run tests
       run: mvn test
 
+    - name: log4
+      run: |
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"info\", \"logger\": \"GithubAction\", \"message\":\"Tests run successfully.\"}" \
+          https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
+
+    - name: log5
+      run: |
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"info\", \"logger\": \"GithubAction\", \"message\":\"Docker build set up.\"}" \
+          https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
 
     - name: Google Auth
       id: auth
@@ -48,12 +88,36 @@ jobs:
       with:
         credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_CONFIG }}'
 
+    - name: log6
+      run: |
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"debug\", \"logger\": \"GithubAction\", \"message\":\"Google auth complete.\"}" \
+          https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
+
     - name: Set up Cloud SDK
       uses: 'google-github-actions/setup-gcloud@v1'
+
+    - name: log7
+      run: |
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"info\", \"logger\": \"GithubAction\", \"message\":\"Google cloud sdk set up complete.\"}" \
+          https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
 
     - name: Configure Docker authentication
       run: |
         gcloud auth configure-docker gcr.io --quiet
+
+    - name: log8
+      run: |
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"debug\", \"logger\": \"GithubAction\", \"message\":\"Docker authentication complete.\"}" \
+          https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
 
     - name: Build and push Docker image
       env:
@@ -62,20 +126,51 @@ jobs:
         docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:$GIT_TAG .
         docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:$GIT_TAG
 
+    - name: log9
+      run: |
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"info\", \"logger\": \"GithubAction\", \"message\":\"Docker build complete.\"}" \
+          https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
         terraform_wrapper: false
 
+    - name: log10
+      run: |
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"info\", \"logger\": \"GithubAction\", \"message\":\"Terraform set up complete.\"}" \
+          https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
 
     - name: Terraform Init
       run: terraform init
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GCP_SERVICE_ACCOUNT_CONFIG }}
 
+    - name: log11
+      run: |
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"info\", \"logger\": \"GithubAction\", \"message\":\"Terraform initialization compelte.\"}" \
+          https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
+
     - name: Terraform Apply
       run: terraform apply -auto-approve -var "project_id=${{ env.PROJECT_ID }}" -var "region=${{ env.REGION }}" -var "image_name=gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GCP_SERVICE_ACCOUNT_CONFIG }}
+        
+    - name: log12
+      run: |
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"info\", \"logger\": \"GithubAction\", \"message\":\"Deployment complete.\"}" \
+          https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
 
 {% endraw %}
