@@ -8,7 +8,7 @@
 		<version>3.3.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>{{ cookiecutter.group_id }}</groupId>
+	<groupId>{{ cookiecutter.group_domain_type }}.{{ cookiecutter.domain_name }}</groupId>
 	<artifactId>spring_boot_rest_api_template</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>{{ cookiecutter.artifact_id_slug }}</name>
