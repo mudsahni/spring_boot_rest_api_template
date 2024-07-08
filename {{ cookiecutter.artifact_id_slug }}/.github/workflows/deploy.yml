@@ -10,9 +10,52 @@ on:
     branches:
       - master
   workflow_dispatch:
-  
+
 jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    outputs:
+      is_first_run: ${{ steps.check_file.outputs.is_first_run }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}
+
+      - name: Check for first run
+        id: check_file
+        run: |
+          if [ -f .github/workflows/first_run_completed ]; then
+            echo "is_first_run=false" >> $GITHUB_OUTPUT
+          else
+            echo "is_first_run=true" >> $GITHUB_OUTPUT
+          fi
+      - name: NOOP and Update Workflow
+        if: steps.check_file.outputs.is_first_run == 'true'
+        run: |
+          echo "Performing NOOP operation for first run"
+          touch .github/workflows/first_run_completed
+          # Remove the check-and-update job
+          sed -i '/^  check-and-update:/,/^  # End of section/d' .github/workflows/deploy.yml
+          
+          # Remove push and pull_request triggers
+          sed -i '/^on:/,/^jobs:/c\on:\n  workflow_dispatch:\n\njobs:' .github/workflows/deploy.yml
+          
+          # Remove the needs and if conditions from build-and-deploy job
+          sed -i '/needs:/d' .github/workflows/deploy.yml
+          sed -i '/if:/d' .github/workflows/deploy.yml
+          
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .github/workflows/first_run_completed .github/workflows/deploy.yml
+          git commit -m "Remove NOOP job, push/pull_request triggers, and mark first run as completed"
+          git push
+          
+  # End of section
+
   build-and-deploy:
+    needs: check-and-update
+    if: needs.check-and-update.outputs.is_first_run == 'false'
     runs-on: ubuntu-latest
 
     env:
@@ -161,16 +204,18 @@ jobs:
           https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve -var "project_id=${{ env.PROJECT_ID }}" -var "region=${{ env.REGION }}" -var "image_name=gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+      id: terraform-apply
+      run: |
+        terraform apply -auto-approve -var "project_id=${{ env.PROJECT_ID }}" -var "region=${{ env.REGION }}" -var "image_name=gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+        echo "cloud_run_url=$(terraform output -raw cloud_run_url)" >> $GITHUB_OUTPUT
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GCP_SERVICE_ACCOUNT_CONFIG }}
-        
     - name: log12
       run: |
         timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
         curl -X POST \
           -H "Content-Type: application/json" \
-          -d "{\"timestamp\": \"$timestamp\", \"level\": \"info\", \"logger\": \"GithubAction\", \"message\":\"Deployment complete.\"}" \
+          -d "{\"timestamp\": \"$timestamp\", \"level\": \"info\", \"logger\": \"GithubAction\", \"message\":\"Deployment complete. The website is present at: ${{ steps.terraform-apply.outputs.cloud_run_url }}\"}" \
           https://logmachine-nfxik62jwa-uc.a.run.app/api/v1/log
-
+          
 {% endraw %}
